@@ -16,5 +16,18 @@ export async function createProductController(req, res) {
     } catch (e) {
         res.sendStatus(400);
     }
-}
+};
+
+export async function getProductController(req, res) {
+    try {
+        const products = await db.collection("products").find().toArray();
+        res.send(products);
+    } catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+};
+
+
+
 
