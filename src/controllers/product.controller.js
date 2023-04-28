@@ -28,6 +28,20 @@ export async function getProductController(req, res) {
     }
 };
 
+export async function getProductForId(req, res) {
+    const id = req.params.id
+    try {
+        const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
+        if(!product){
+            return res.sendStatus(404);
+        }
+        return res.status(200).send(product);
+    } catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+}
+
 
 
 
