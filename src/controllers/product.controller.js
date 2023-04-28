@@ -32,6 +32,7 @@ export async function getProductForId(req, res) {
     const id = req.params.id
     try {
         const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
+        console.log(product)
         if(!product){
             return res.sendStatus(404);
         }
@@ -42,6 +43,17 @@ export async function getProductForId(req, res) {
     }
 }
 
-
-
+export async function deleteProductForId(req, res){
+    const id = req.params.id
+    try {
+        const product = await db.collection("products").deleteOne({ _id: new ObjectId(id) });
+        if(product.deletedCount === 0){
+            return res.sendStatus(404);
+        }
+        return res.status(200).send("Produto deletado com sucesso");
+    } catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+}
 
