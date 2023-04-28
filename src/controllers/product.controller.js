@@ -20,7 +20,7 @@ export async function createProductController(req, res) {
 
 export async function getProductController(req, res) {
     try {
-        const products = await db.collection("products").find().toArray();
+        const products = await db.collection("products").find().limit(50).toArray();
         res.send(products);
     } catch (e) {
         console.log("Connection to db failed.");
