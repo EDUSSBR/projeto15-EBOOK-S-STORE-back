@@ -20,7 +20,7 @@ export async function createProductController(req, res) {
 
 export async function getProductController(req, res) {
     try {
-        const products = await db.collection("products").find().toArray();
+        const products = await db.collection("products").find().limit(50).toArray();
         res.send(products);
     } catch (e) {
         console.log("Connection to db failed.");
@@ -28,6 +28,32 @@ export async function getProductController(req, res) {
     }
 };
 
+export async function getProductForId(req, res) {
+    const id = req.params.id
+    try {
+        const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
+        console.log(product)
+        if(!product){
+            return res.sendStatus(404);
+        }
+        return res.status(200).send(product);
+    } catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+}
 
-
+export async function deleteProductForId(req, res){
+    const id = req.params.id
+    try {
+        const product = await db.collection("products").deleteOne({ _id: new ObjectId(id) });
+        if(product.deletedCount === 0){
+            return res.sendStatus(404);
+        }
+        return res.status(200).send("Produto deletado com sucesso");
+    } catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+}
 
