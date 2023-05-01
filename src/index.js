@@ -13,4 +13,9 @@ app.use(express.json());
 app.use(router);
 
 
-app.listen(process.env.PORT, ()=> console.log(`Server listening at ${process.env.PORT}`));
+app.listen(process.env.PORT, ()=> console.log(`Server listening at ${process.env.PORT}`))
+
+ console.log(process.env.PORT)
+
+const port = process.env.PORT || 5000;
+app.listen(port, console.log(`servidor iniciado na porta ${port}`))
