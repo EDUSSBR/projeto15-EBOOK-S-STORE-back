@@ -44,7 +44,7 @@ export async function getProductForId(req, res) {
 }
 
 export async function deleteProductForId(req, res){
-    const id = req.params.id
+    const id = req.params.id;
     try {
         const product = await db.collection("products").deleteOne({ _id: new ObjectId(id) });
         if(product.deletedCount === 0){
@@ -57,3 +57,19 @@ export async function deleteProductForId(req, res){
     }
 }
 
+export async function putProductForId(req, res){
+    const id = req.params.id;
+    const { name, price, description, stockQuantity, category, imageUrl } = req.body;
+    const productEd = { name, price, description, stockQuantity, category, imageUrl };
+    try{
+        const product = await db.collection("products").updateOne({ _id: new ObjectId(id) }, { $set: productEd});
+        if(product.matchedCount === 0){
+            return res.sendStatus(404)
+        }
+        res.sendStatus(200);
+    }catch (e) {
+        console.log("Connection to db failed.");
+        res.sendStatus(400);
+    }
+    
+}
