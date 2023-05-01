@@ -60,3 +60,4 @@ export async function token(req,res){
         res.status(500).send(err.message)
     }
 }
+
