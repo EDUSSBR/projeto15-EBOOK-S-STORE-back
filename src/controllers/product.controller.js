@@ -8,7 +8,7 @@ export async function createProductController(req, res) {
         const { name, price, description, stockQuantity, category, imageUrl } = req.body;
         const created = await db.collection("products").insertOne({ name, price, description, stockQuantity, category, imageUrl });
         if (created.acknowledged) {
-            res.sendStatus(201);
+            return res.sendStatus(201);
         } else {
             console.log("Connection to db failed.");
             throw "";
