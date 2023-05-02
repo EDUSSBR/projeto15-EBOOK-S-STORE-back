@@ -1,6 +1,8 @@
 import { db } from "../db/database.js";
 import bcrypt from "bcrypt"
-import {v4 as uuid} from "uuid"
+import jwt from 'jsonwebtoken';
+import { ObjectId } from "mongodb";
+import { validateAdmin } from "../middlewares/validateAdmin.js";
 
 export async function signUp(req,res){
     const {name, email, password} = req.body
@@ -12,7 +14,7 @@ export async function signUp(req,res){
         }
         const pass = bcrypt.hashSync(password, 10)
         await db.collection("users").insertOne({name, email, password:pass})
-        res.send(201)
+        res.sendStatus(201)
     }catch(err){
         res.status(500).send(err.message)
     }
@@ -29,34 +31,39 @@ export async function login(req,res){
         }
          
         const pass = bcrypt.compareSync(password, User.password)
-        console.log(pass)
         if(!pass){
             return res.status(401).send("Senha não confere")
         }
-        const token = uuid()
+        const configuracoes = { expiresIn: 60*60*24 }
+        const dados = User;
+        delete dados.password
+        const chaveSecreta = process.env.JWT_SECRET;
+        const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
-        res.send(token)
+        res.send({token, name: User.name, email: User.email, admin:User.isAdmin})
     }catch(err){
         res.status(500).send(err.message)
     }
 }
 
-export async function token(req,res){
-    const {authorization} = req.headers
+export async function getUser(req,res){
+    const { authorization } = req.headers
     const token = authorization?.replace("Bearer ", "")
-    
-    try{
-       const user = await db.collection("sessions").findOne({token})
-       
-       if(!user){
-        return res.send(false).status(401)
-       }
-       const userInformations = await db.collection("users").findOne({_id:user.userId})
-       
-       delete userInformations.password
-       delete userInformations._id
-       res.send(userInformations).status(200)
-    }catch(err){
+    if (!token) {
+        res.send("Não autorizado").status(401)
+    }
+    try {
+        const chaveSecreta = process.env.JWT_SECRET;
+        const dados = jwt.verify(token, chaveSecreta)
+        const session = await db.collection("sessions").find({ $and: [{ token }, { userId: new ObjectId(dados._id) }] })
+        if (session) {
+            const userInformations = await db.collection("users").findOne({ _id: new ObjectId(dados._id) })
+            if(userInformations){
+                res.send(userInformations)
+            }
+
+        }
+    } catch (err) {
         res.status(500).send(err.message)
     }
 }
