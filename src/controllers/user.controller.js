@@ -1,8 +1,8 @@
 import { db } from "../db/database.js";
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken';
-import {v4 as uuid} from "uuid"
 import { ObjectId } from "mongodb";
+import { validateAdmin } from "../middlewares/validateAdmin.js";
 
 export async function signUp(req,res){
     const {name, email, password} = req.body
@@ -40,7 +40,7 @@ export async function login(req,res){
         const chaveSecreta = process.env.JWT_SECRET;
         const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
-        res.send(token)
+        res.send({token, name: User.name, email: User.email})
     }catch(err){
         res.status(500).send(err.message)
     }
@@ -60,4 +60,3 @@ export async function token(req,res){
         res.status(500).send(err.message)
     }
 }
-
