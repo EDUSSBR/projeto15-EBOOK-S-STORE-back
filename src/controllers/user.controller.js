@@ -40,23 +40,30 @@ export async function login(req,res){
         const chaveSecreta = process.env.JWT_SECRET;
         const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
-        res.send({token, name: User.name, email: User.email})
+        res.send(token)
     }catch(err){
         res.status(500).send(err.message)
     }
 }
 
-export async function token(req,res){
-    const {authorization} = req.headers
+export async function getUser(req,res){
+    const { authorization } = req.headers
     const token = authorization?.replace("Bearer ", "")
-    
-    try{
+    if (!token) {
+        res.send("Não autorizado").status(401)
+    }
+    try {
         const chaveSecreta = process.env.JWT_SECRET;
-       const dados = jwt.verify(token, chaveSecreta)
-       const userInformations = await db.collection("users").findOne({_id:new ObjectId(dados._id)})
-       delete userInformations._id
-       res.send(userInformations).status(200)
-    }catch(err){
+        const dados = jwt.verify(token, chaveSecreta)
+        const session = await db.collection("sessions").find({ $and: [{ token }, { userId: new ObjectId(dados._id) }] })
+        if (session) {
+            const userInformations = await db.collection("users").findOne({ _id: new ObjectId(dados._id) })
+            if(userInformations){
+                res.send(userInformations)
+            }
+
+        }
+    } catch (err) {
         res.status(500).send(err.message)
     }
 }
