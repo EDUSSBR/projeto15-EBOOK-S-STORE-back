@@ -2,9 +2,10 @@ import { db } from "../db/database.js";
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken';
 import { ObjectId } from "mongodb";
+import { validateAdmin } from "../middlewares/validateAdmin.js";
 
 export async function signUp(req,res){
-    const {name, email, password, isAdmin} = req.body
+    const {name, email, password} = req.body
     try{
         
         const sameUser = await db.collection("users").findOne({email})
@@ -12,7 +13,7 @@ export async function signUp(req,res){
             return res.status(409).send("Email já cadastrado")
         }
         const pass = bcrypt.hashSync(password, 10)
-        await db.collection("users").insertOne({name, email, password:pass, isAdmin})
+        await db.collection("users").insertOne({name, email, password:pass})
         res.send(201)
     }catch(err){
         res.status(500).send(err.message)
@@ -33,7 +34,6 @@ export async function login(req,res){
         if(!pass){
             return res.status(401).send("Senha não confere")
         }
-        console.log(User)
         const configuracoes = { expiresIn: 60*60*24 }
         const dados = User;
         delete dados.password
@@ -60,4 +60,3 @@ export async function token(req,res){
         res.status(500).send(err.message)
     }
 }
-
