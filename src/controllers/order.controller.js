@@ -5,7 +5,6 @@ export async function order(req, res){
     console.log(name)
     try {
         await db.collection("order").insertOne({name, email ,cart, paymentForm, total})
-        console.log("chegou aqui")
         res.sendStatus(200)
     } catch (err) {
         res.status(500).send(err.message)
