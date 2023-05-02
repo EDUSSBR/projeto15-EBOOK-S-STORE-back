@@ -8,22 +8,24 @@ export async function validateToken(req, res, next) {
         res.send("Não autorizado").status(401)
     }
     try {
+        
         const chaveSecreta = process.env.JWT_SECRET;
         const dados = jwt.verify(token, chaveSecreta)
         const session = await db.collection("sessions").find({ $and: [{ token }, { userId: new ObjectId(dados._id) }] })
+        
         if (session) {
             const userInformations = await db.collection("users").findOne({ _id: new ObjectId(dados._id) })
-            console.log(userInformations)
-            req.id=userId;
+            req.email=userInformations.email
+
             if (userInformations!== null && userInformations.isAdmin){
                 const { isAdmin } = userInformations
-                console.log(isAdmin)
                 req.isAdmin=isAdmin
             }
 
         }
         next()
     } catch (err) {
+        
         res.status(500).send(err.message)
     }
 }

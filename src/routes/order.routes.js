@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { getOrder, order } from "../controllers/order.controller.js";
 import {validateToken} from "../middlewares/validateToken.js";
-import { validateAdmin } from "../middlewares/validateAdmin.js";
 
 
 const orderRouter = Router()

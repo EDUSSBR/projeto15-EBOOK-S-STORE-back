@@ -14,14 +14,16 @@ export async function order(req, res){
 export async function getOrder(req, res){
     try{
         const {isAdmin} = req;
-        const { id } = req;
+        const { email } = req;
         let orders;
+        
         if(isAdmin){
             orders = await db.collection("order").find().toArray()
             console.log("Pedidos encontrados:", orders);
         }else{
-            orders = await db.collection("order").find({ _id: new ObjectId(id) }).toArray()
+            orders = await db.collection("order").find({ email: email }).toArray()
         }
+        console.log(orders)
         return res.send(orders)
     } catch (err) {
         res.status(500).send(err.message)
