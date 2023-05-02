@@ -1,7 +1,7 @@
-import orderRouter from "./order.routes.js";
 import productsRouter from "./product.routes.js";
 import userRouter from "./user.routes.js";
 import { Router } from "express";
+import orderRouter from "./order.routes.js";
 
 const router = Router()
 

@@ -14,7 +14,7 @@ export async function signUp(req,res){
         }
         const pass = bcrypt.hashSync(password, 10)
         await db.collection("users").insertOne({name, email, password:pass})
-        res.send(201)
+        res.sendStatus(201)
     }catch(err){
         res.status(500).send(err.message)
     }
@@ -40,7 +40,7 @@ export async function login(req,res){
         const chaveSecreta = process.env.JWT_SECRET;
         const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
-        res.send(token)
+        res.send({token, name: User.name, email: User.email, admin:User.isAdmin})
     }catch(err){
         res.status(500).send(err.message)
     }
