@@ -32,7 +32,6 @@ export async function getProductForId(req, res) {
     const id = req.params.id
     try {
         const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
-        console.log(product)
         if(!product){
             return res.sendStatus(404);
         }
