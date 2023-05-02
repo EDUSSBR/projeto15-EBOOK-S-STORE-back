@@ -1,6 +1,8 @@
 import { db } from "../db/database.js";
 import bcrypt from "bcrypt"
-import {v4 as uuid} from "uuid"
+import jwt from 'jsonwebtoken';
+import { ObjectId } from "mongodb";
+import { validateAdmin } from "../middlewares/validateAdmin.js";
 
 export async function signUp(req,res){
     const {name, email, password} = req.body
@@ -29,11 +31,14 @@ export async function login(req,res){
         }
          
         const pass = bcrypt.compareSync(password, User.password)
-        console.log(pass)
         if(!pass){
             return res.status(401).send("Senha não confere")
         }
-        const token = uuid()
+        const configuracoes = { expiresIn: 60*60*24 }
+        const dados = User;
+        delete dados.password
+        const chaveSecreta = process.env.JWT_SECRET;
+        const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
         res.send(token)
     }catch(err){
@@ -46,14 +51,9 @@ export async function token(req,res){
     const token = authorization?.replace("Bearer ", "")
     
     try{
-       const user = await db.collection("sessions").findOne({token})
-       
-       if(!user){
-        return res.send(false).status(401)
-       }
-       const userInformations = await db.collection("users").findOne({_id:user.userId})
-       
-       delete userInformations.password
+        const chaveSecreta = process.env.JWT_SECRET;
+       const dados = jwt.verify(token, chaveSecreta)
+       const userInformations = await db.collection("users").findOne({_id:new ObjectId(dados._id)})
        delete userInformations._id
        res.send(userInformations).status(200)
     }catch(err){

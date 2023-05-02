@@ -8,7 +8,7 @@ export async function createProductController(req, res) {
         const { name, price, description, stockQuantity, category, imageUrl } = req.body;
         const created = await db.collection("products").insertOne({ name, price, description, stockQuantity, category, imageUrl });
         if (created.acknowledged) {
-            res.sendStatus(201);
+            return res.sendStatus(201);
         } else {
             console.log("Connection to db failed.");
             throw "";
@@ -32,7 +32,6 @@ export async function getProductForId(req, res) {
     const id = req.params.id
     try {
         const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
-        console.log(product)
         if(!product){
             return res.sendStatus(404);
         }
