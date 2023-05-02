@@ -14,7 +14,7 @@ export async function order(req, res){
         if(cart.length !== products.length) return res.sendStatus(400)
         const resp = await db.collection("order").insertOne({name, email ,cart, paymentForm, total})
         console.log(resp)
-        await sendEmail(name, email ,cart, paymentForm, id)
+        await sendEmail(name, email ,cart, paymentForm)
         res.sendStatus(200)
     } catch (err) {
         res.status(500).send(err.message)
