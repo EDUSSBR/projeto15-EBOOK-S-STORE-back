@@ -40,7 +40,7 @@ export async function login(req,res){
         const chaveSecreta = process.env.JWT_SECRET;
         const token = jwt.sign(dados, chaveSecreta, configuracoes);
         await db.collection("sessions").insertOne({userId:User._id, token})
-        res.send({token, name: User.name, email: User.email})
+        res.send({token, name: User.name, email: User.email, admin:User.isAdmin})
     }catch(err){
         res.status(500).send(err.message)
     }
