@@ -1,9 +1,9 @@
-export function validateAdmin(req,res,next){
-    const isAdmin = req.isAdmin
-    if(isAdmin){
+export function validateAdmin(req, res, next) {
+    const { isAdmin } = req
+    if (isAdmin) {
         next()
     }
-    else{
-        return res.send("Não autorizado").status(401)
+    else {
+        return res.status(401).send("Não autorizado")
     }
 }
